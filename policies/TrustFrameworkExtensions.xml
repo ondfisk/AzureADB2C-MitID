@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TrustFrameworkPolicy
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
+  PolicySchemaVersion="0.3.0.0"
+  TenantId="ondfiskb2c.onmicrosoft.com"
+  PolicyId="B2C_1A_TrustFrameworkExtensions"
+  PublicPolicyUri="http://ondfiskb2c.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions">
+  <BasePolicy>
+    <TenantId>ondfiskb2c.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_TrustFrameworkLocalization</PolicyId>
+  </BasePolicy>
+  <BuildingBlocks>
+    <ClaimsSchema>
+      <ClaimType Id="cprNumber">
+        <DisplayName>CPR Number</DisplayName>
+        <DataType>string</DataType>
+        <AdminHelpText>Add help text here</AdminHelpText>
+      </ClaimType>
+    </ClaimsSchema>
+  </BuildingBlocks>
+  <ClaimsProviders>
+    <ClaimsProvider>
+      <DisplayName>MitID</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="MitID-OIDC">
+          <DisplayName>MitID</DisplayName>
+          <Protocol Name="OpenIdConnect" />
+          <Metadata>
+            <Item Key="client_id">urn:my:application:identifier:412703</Item>
+            <Item Key="METADATA">https://ondfisk-test.criipto.id/.well-known/openid-configuration</Item>
+            <Item Key="scope">openid ssn</Item>
+            <!-- <Item
+            Key="acr_values">urn:grn:authn:dk:mitid:substantial,urn:grn:authn:dk:mitid:high</Item> -->
+            <Item Key="response_types">code</Item>
+            <Item Key="response_mode">form_post</Item>
+            <Item Key="HttpBinding">POST</Item>
+            <Item Key="UsePolicyInRedirectUri">false</Item>
+            <Item Key="SingleLogoutEnabled">true</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="client_secret" StorageReferenceId="B2C_1A_CriiptoClientSecret" />
+          </CryptographicKeys>
+          <InputClaims />
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="uuid" />
+            <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="cprNumber" PartnerClaimType="cprNumberIdentifier" />
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="NemID" AlwaysUseDefaultValue="true" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="socialIdpAuthentication" AlwaysUseDefaultValue="true" />
+          </OutputClaims>
+          <OutputClaimsTransformations>
+            <OutputClaimsTransformation ReferenceId="CreateRandomUPNUserName" />
+            <OutputClaimsTransformation ReferenceId="CreateUserPrincipalName" />
+            <OutputClaimsTransformation ReferenceId="CreateAlternativeSecurityId" />
+          </OutputClaimsTransformations>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-SocialLogin" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+  </ClaimsProviders>
+  <UserJourneys>
+    <UserJourney Id="MitID-SignIn">
+      <OrchestrationSteps>
+
+        <OrchestrationStep Order="1" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="MitIDExchange" TechnicalProfileReferenceId="MitID-OIDC" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- For social IDP authentication, attempt to find the user account in the directory. -->
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserReadUsingAlternativeSecurityId"
+              TechnicalProfileReferenceId="AAD-UserReadUsingAlternativeSecurityId-NoError" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- The previous step (SelfAsserted-Social) could have been skipped if there were no
+        attributes to collect
+             from the user. So, in that case, create the user in the directory if one does not already exist
+             (verified using objectId which would be set from the last step if account was created in the
+        directory. -->
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserWrite"
+              TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="4" Type="SendClaims"
+          CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+
+      </OrchestrationSteps>
+      <ClientDefinition ReferenceId="DefaultWeb" />
+    </UserJourney>
+  </UserJourneys>
+</TrustFrameworkPolicy>
