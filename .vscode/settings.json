@@ -3,5 +3,10 @@
     "aadb2c.ai.key": "rllec3qz01xhcoapq4kh7yl1uaz6dj78tkorpo1c",
     "aadb2c.ai.maxRows": 30,
     "aadb2c.ai.timespan": 0,
-    "aadb2c.ai.duration": 12
+    "aadb2c.ai.duration": 12,
+    "azureFunctions.deploySubpath": "func/bin/Release/net7.0/publish",
+    "azureFunctions.projectLanguage": "C#",
+    "azureFunctions.projectRuntime": "~4",
+    "debug.internalConsoleOptions": "neverOpen",
+    "azureFunctions.preDeployTask": "publish (functions)"
 }

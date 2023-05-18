@@ -40,15 +40,17 @@
             <Item Key="SingleLogoutEnabled">true</Item>
           </Metadata>
           <CryptographicKeys>
-            <Key Id="client_secret" StorageReferenceId="B2C_1A_CriiptoClientSecret" />
+            <Key Id="client_secret" StorageReferenceId="B2C_1A_MitIDClientSecret" />
           </CryptographicKeys>
           <InputClaims />
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="uuid" />
             <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
             <OutputClaim ClaimTypeReferenceId="cprNumber" PartnerClaimType="cprNumberIdentifier" />
-            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="NemID" AlwaysUseDefaultValue="true" />
-            <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="socialIdpAuthentication" AlwaysUseDefaultValue="true" />
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="MitID"
+              AlwaysUseDefaultValue="true" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource"
+              DefaultValue="socialIdpAuthentication" AlwaysUseDefaultValue="true" />
           </OutputClaims>
           <OutputClaimsTransformations>
             <OutputClaimsTransformation ReferenceId="CreateRandomUPNUserName" />
@@ -57,19 +59,35 @@
           </OutputClaimsTransformations>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-SocialLogin" />
         </TechnicalProfile>
+        <TechnicalProfile Id="UserValidator-REST">
+          <DisplayName>Validate user input data and return UPN claim</DisplayName>
+          <Protocol Name="Proprietary"
+            Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">https://ondfiskb2c.azurewebsites.net/api/identity</Item>
+            <Item Key="AuthenticationType">ClientCertificate</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_X509Certificate" />
+          </CryptographicKeys>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="uuid" />
+            <InputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
+            <InputClaim ClaimTypeReferenceId="cprNumber" PartnerClaimType="cprNumberIdentifier" />
+          </InputClaims>
+          <OutputClaims />
+        </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
   </ClaimsProviders>
   <UserJourneys>
     <UserJourney Id="MitID-SignIn">
       <OrchestrationSteps>
-
         <OrchestrationStep Order="1" Type="ClaimsExchange">
           <ClaimsExchanges>
             <ClaimsExchange Id="MitIDExchange" TechnicalProfileReferenceId="MitID-OIDC" />
           </ClaimsExchanges>
         </OrchestrationStep>
-
         <!-- For social IDP authentication, attempt to find the user account in the directory. -->
         <OrchestrationStep Order="2" Type="ClaimsExchange">
           <ClaimsExchanges>
@@ -77,7 +95,6 @@
               TechnicalProfileReferenceId="AAD-UserReadUsingAlternativeSecurityId-NoError" />
           </ClaimsExchanges>
         </OrchestrationStep>
-
         <!-- The previous step (SelfAsserted-Social) could have been skipped if there were no
         attributes to collect
              from the user. So, in that case, create the user in the directory if one does not already exist
@@ -95,10 +112,8 @@
               TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId" />
           </ClaimsExchanges>
         </OrchestrationStep>
-
         <OrchestrationStep Order="4" Type="SendClaims"
           CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
-
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
     </UserJourney>

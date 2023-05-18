@@ -1,8 +1,8 @@
 {
-    "recommendations": [
-        "ms-dotnettools.csharp",
-        "azureadb2ctools.aadb2c",
-        "ms-azuretools.vscode-azurefunctions",
-        "redhat.vscode-xml"
-    ]
+  "recommendations": [
+    "ms-azuretools.vscode-azurefunctions",
+    "ms-dotnettools.csharp",
+    "azureadb2ctools.aadb2c",
+    "redhat.vscode-xml"
+  ]
 }
