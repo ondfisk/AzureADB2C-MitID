@@ -65,10 +65,11 @@
             Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
             <Item Key="ServiceUrl">https://ondfiskb2c.azurewebsites.net/api/identity</Item>
-            <Item Key="AuthenticationType">ClientCertificate</Item>
+            <Item Key="AuthenticationType">ApiKeyHeader</Item>
+            <Item Key="SendClaimsIn">Body</Item>
           </Metadata>
           <CryptographicKeys>
-            <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_X509Certificate" />
+            <Key Id="x-functions-key" StorageReferenceId="B2C_1A_FunctionsKey" />
           </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="uuid" />

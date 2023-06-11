@@ -1,8 +1,10 @@
 {
   "recommendations": [
+    "azureadb2ctools.aadb2c",
+    "humao.rest-client",
     "ms-azuretools.vscode-azurefunctions",
     "ms-dotnettools.csharp",
-    "azureadb2ctools.aadb2c",
+    "ms-vscode.powershell",
     "redhat.vscode-xml"
   ]
 }

@@ -1,9 +1,29 @@
 param location string = resourceGroup().location
+param keyVaultName string = 'ondfiskb2c'
 param logAnalyticsWorkspaceName string = 'ondfiskb2c'
 param applicationInsightsName string = 'ondfiskb2c'
 param appServicePlanName string = 'ondfiskb2c'
 param storageAccountName string = 'ondfiskb2c'
 param functionAppName string = 'ondfiskb2c'
+
+resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
+  name: keyVaultName
+  location: location
+  properties: {
+    sku: {
+      family: 'A'
+      name: 'standard'
+    }
+    tenantId: tenant().tenantId
+    accessPolicies: []
+    enabledForDeployment: false
+    enabledForDiskEncryption: false
+    enabledForTemplateDeployment: false
+    enablePurgeProtection: true
+    enableRbacAuthorization: true
+    publicNetworkAccess: 'Enabled'
+  }
+}
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: logAnalyticsWorkspaceName
@@ -126,15 +146,11 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
           name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
           value: applicationInsights.properties.ConnectionString
         }
-        {
-          name: 'CERTIFICATE_THUMBPRINT'
-          value: '3419E4A4A03EBB81070223601FFD5C1C0DC23C37'
-        }
       ]
     }
     httpsOnly: true
     publicNetworkAccess: 'Enabled'
     clientCertEnabled: true
-    clientCertMode: 'Required' // Not supported by consumption plan
+    clientCertMode: 'Optional'
   }
 }

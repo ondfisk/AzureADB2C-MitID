@@ -4,7 +4,7 @@
     "aadb2c.ai.maxRows": 30,
     "aadb2c.ai.timespan": 0,
     "aadb2c.ai.duration": 12,
-    "azureFunctions.deploySubpath": "func/bin/Release/net7.0/publish",
+    "azureFunctions.deploySubpath": "functions/bin/Release/net7.0/publish",
     "azureFunctions.projectLanguage": "C#",
     "azureFunctions.projectRuntime": "~4",
     "debug.internalConsoleOptions": "neverOpen",
