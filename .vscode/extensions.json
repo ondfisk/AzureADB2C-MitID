@@ -2,6 +2,7 @@
   "recommendations": [
     "azureadb2ctools.aadb2c",
     "humao.rest-client",
+    "msazurermtools.azurerm-vscode-tools",
     "ms-azuretools.vscode-azurefunctions",
     "ms-dotnettools.csharp",
     "ms-vscode.powershell",

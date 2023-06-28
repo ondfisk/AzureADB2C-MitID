@@ -9,12 +9,20 @@
   PublicPolicyUri="http://ondfiskb2c.onmicrosoft.com/B2C_1A_signup_signin"
   DeploymentMode="Development"
   UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
+
   <BasePolicy>
     <TenantId>ondfiskb2c.onmicrosoft.com</TenantId>
     <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
   </BasePolicy>
+
   <RelyingParty>
     <DefaultUserJourney ReferenceId="MitID-SignIn" />
+    <Endpoints>
+      <!--points
+      to refresh token journey when app makes refresh token request-->
+      <Endpoint Id="Token" UserJourneyReferenceId="RedeemRefreshToken" />
+
+    </Endpoints>
     <UserJourneyBehaviors>
       <JourneyInsights TelemetryEngine="ApplicationInsights"
         InstrumentationKey="08ba51bd-ccc0-4d13-a5d8-33e5182def64" DeveloperMode="true"
@@ -25,11 +33,13 @@
       <Protocol Name="OpenIdConnect" />
       <OutputClaims>
         <OutputClaim ClaimTypeReferenceId="displayName" />
+        <OutputClaim ClaimTypeReferenceId="givenName" />
+        <OutputClaim ClaimTypeReferenceId="cprNumber" />
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
         <OutputClaim ClaimTypeReferenceId="identityProvider" />
         <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true"
           DefaultValue="{Policy:TenantObjectId}" />
-        <OutputClaim ClaimTypeReferenceId="cprNumber" />
+        <OutputClaim ClaimTypeReferenceId="azureAdObjectId" />
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>
