@@ -146,7 +146,7 @@ Under `/src/Ondfisk.B2C.Functions`, create a `local.settings.json`:
 
 Deploy `/src/Ondfisk.B2C.Functions`.
 
-Capture the *default function key* from the `UpdateUser` function.
+Capture the *default function key* from the `ValidateUser` function.
 
 ## Azure AD B2C
 
