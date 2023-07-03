@@ -1,6 +1,6 @@
 namespace Ondfisk.B2C;
 
-public record UpdateUserDto(string IssuerUserId, string DisplayName, string CprNumber);
+public record UpdateUserDto(string IssuerUserId, string DisplayName, string CivilRegistrationNumber);
 
 public class UpdateUserDtoValidator : AbstractValidator<UpdateUserDto>
 {
@@ -8,6 +8,6 @@ public class UpdateUserDtoValidator : AbstractValidator<UpdateUserDto>
     {
         RuleFor(x => x.IssuerUserId).NotEmpty();
         RuleFor(x => x.DisplayName).NotEmpty();
-        RuleFor(x => x.CprNumber).NotEmpty();
+        RuleFor(x => x.CivilRegistrationNumber).NotEmpty().Matches(@"^\d{10}$");
     }
 }

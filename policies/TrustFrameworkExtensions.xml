@@ -9,23 +9,26 @@
   PublicPolicyUri="http://ondfiskb2c.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions">
   <BasePolicy>
     <TenantId>ondfiskb2c.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_TrustFrameworkLocalization</PolicyId>
+    <PolicyId>B2C_1A_TrustFrameworkBase</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
     <ClaimsSchema>
-      <ClaimType Id="cprNumber">
-        <DisplayName>CPR Number</DisplayName>
+      <ClaimType Id="civilRegistrationNumber">
+        <DisplayName>Civil Registration Number</DisplayName>
         <DataType>string</DataType>
-        <AdminHelpText>Add help text here</AdminHelpText>
+      </ClaimType>
+      <ClaimType Id="azureAdId">
+        <DisplayName>(Corporate) Azure AD ID</DisplayName>
+        <DataType>string</DataType>
       </ClaimType>
     </ClaimsSchema>
   </BuildingBlocks>
   <ClaimsProviders>
     <ClaimsProvider>
-      <DisplayName>MitID</DisplayName>
+      <DisplayName>Mit ID</DisplayName>
       <TechnicalProfiles>
         <TechnicalProfile Id="MitID-OIDC">
-          <DisplayName>MitID</DisplayName>
+          <DisplayName>Mit ID</DisplayName>
           <Protocol Name="OpenIdConnect" />
           <Metadata>
             <Item Key="client_id">urn:my:application:identifier:412703</Item>
@@ -46,8 +49,9 @@
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="uuid" />
             <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
-            <OutputClaim ClaimTypeReferenceId="cprNumber" PartnerClaimType="cprNumberIdentifier" />
-            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="MitID"
+            <OutputClaim ClaimTypeReferenceId="civilRegistrationNumber"
+              PartnerClaimType="cprNumberIdentifier" />
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="Mit ID"
               AlwaysUseDefaultValue="true" />
             <OutputClaim ClaimTypeReferenceId="authenticationSource"
               DefaultValue="socialIdpAuthentication" AlwaysUseDefaultValue="true" />
@@ -59,12 +63,18 @@
           </OutputClaimsTransformations>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-SocialLogin" />
         </TechnicalProfile>
-        <TechnicalProfile Id="UserValidator-REST">
-          <DisplayName>Validate user input data and return UPN claim</DisplayName>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <ClaimsProvider>
+      <DisplayName>REST APIs</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="UpdateUser-REST">
+          <DisplayName>Update CPR number in Azure AD using Azure Function web hook</DisplayName>
           <Protocol Name="Proprietary"
             Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="ServiceUrl">https://ondfiskb2c.azurewebsites.net/api/identity</Item>
+            <!-- Set the ServiceUrl with your own REST API endpoint -->
+            <Item Key="ServiceUrl">https://ondfiskb2c.azurewebsites.net/api/UpdateUser</Item>
             <Item Key="AuthenticationType">ApiKeyHeader</Item>
             <Item Key="SendClaimsIn">Body</Item>
           </Metadata>
@@ -72,11 +82,16 @@
             <Key Id="x-functions-key" StorageReferenceId="B2C_1A_FunctionsKey" />
           </CryptographicKeys>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="uuid" />
-            <InputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
-            <InputClaim ClaimTypeReferenceId="cprNumber" PartnerClaimType="cprNumberIdentifier" />
+            <!-- Claims sent to your REST API -->
+            <InputClaim ClaimTypeReferenceId="issuerUserId" />
+            <InputClaim ClaimTypeReferenceId="displayName" />
+            <InputClaim ClaimTypeReferenceId="civilRegistrationNumber" />
           </InputClaims>
-          <OutputClaims />
+          <OutputClaims>
+            <!-- Claims parsed from your REST API -->
+            <OutputClaim ClaimTypeReferenceId="azureAdId" PartnerClaimType="id" />
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
@@ -84,24 +99,28 @@
   <UserJourneys>
     <UserJourney Id="MitID-SignIn">
       <OrchestrationSteps>
-        <OrchestrationStep Order="1" Type="ClaimsExchange">
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp"
+          ContentDefinitionReferenceId="api.signuporsignin">
+          <ClaimsProviderSelections>
+            <ClaimsProviderSelection TargetClaimsExchangeId="MitIDExchange" />
+          </ClaimsProviderSelections>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
           <ClaimsExchanges>
             <ClaimsExchange Id="MitIDExchange" TechnicalProfileReferenceId="MitID-OIDC" />
           </ClaimsExchanges>
         </OrchestrationStep>
+
         <!-- For social IDP authentication, attempt to find the user account in the directory. -->
-        <OrchestrationStep Order="2" Type="ClaimsExchange">
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
           <ClaimsExchanges>
             <ClaimsExchange Id="AADUserReadUsingAlternativeSecurityId"
               TechnicalProfileReferenceId="AAD-UserReadUsingAlternativeSecurityId-NoError" />
           </ClaimsExchanges>
         </OrchestrationStep>
-        <!-- The previous step (SelfAsserted-Social) could have been skipped if there were no
-        attributes to collect
-             from the user. So, in that case, create the user in the directory if one does not already exist
-             (verified using objectId which would be set from the last step if account was created in the
-        directory. -->
-        <OrchestrationStep Order="3" Type="ClaimsExchange">
+
+        <OrchestrationStep Order="4" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -113,7 +132,14 @@
               TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId" />
           </ClaimsExchanges>
         </OrchestrationStep>
-        <OrchestrationStep Order="4" Type="SendClaims"
+
+        <OrchestrationStep Order="5" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="RestUpdateUser" TechnicalProfileReferenceId="UpdateUser-REST" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="6" Type="SendClaims"
           CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />

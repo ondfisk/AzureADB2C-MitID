@@ -1,28 +1,20 @@
 param location string = resourceGroup().location
-param keyVaultName string = 'ondfiskb2c'
-param logAnalyticsWorkspaceName string = 'ondfiskb2c'
-param applicationInsightsName string = 'ondfiskb2c'
-param appServicePlanName string = 'ondfiskb2c'
-param storageAccountName string = 'ondfiskb2c'
-param functionAppName string = 'ondfiskb2c'
+param b2cTenantName string
+param b2cTenantLocation string
+param logAnalyticsWorkspaceName string
+param applicationInsightsName string
+param appServicePlanName string
+param storageAccountName string
+param functionAppName string
 
-resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
-  name: keyVaultName
-  location: location
-  properties: {
-    sku: {
-      family: 'A'
-      name: 'standard'
-    }
-    tenantId: tenant().tenantId
-    accessPolicies: []
-    enabledForDeployment: false
-    enabledForDiskEncryption: false
-    enabledForTemplateDeployment: false
-    enablePurgeProtection: true
-    enableRbacAuthorization: true
-    publicNetworkAccess: 'Enabled'
+resource b2cTenant 'Microsoft.AzureActiveDirectory/b2cDirectories@2021-04-01' = {
+  name: b2cTenantName
+  location: b2cTenantLocation
+  sku: {
+    name: 'PremiumP1'
+    tier: 'A0'
   }
+  properties: {}
 }
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
