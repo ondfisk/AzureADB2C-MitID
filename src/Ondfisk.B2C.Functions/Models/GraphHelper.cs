@@ -1,6 +1,6 @@
-namespace Ondfisk.B2C;
+namespace Ondfisk.B2C.Models;
 
-public class GraphHelper
+public class GraphHelper : IGraphHelper
 {
     private readonly GraphServiceClient _client;
 

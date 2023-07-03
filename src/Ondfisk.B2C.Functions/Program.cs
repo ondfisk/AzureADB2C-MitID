@@ -4,7 +4,7 @@ var host = new HostBuilder()
     {
         services.AddValidatorsFromAssemblyContaining<Program>();
         services.AddScoped(_ => new GraphServiceClient(new DefaultAzureCredential()));
-        services.AddScoped<GraphHelper>();
+        services.AddScoped<IGraphHelper, GraphHelper>();
     })
     .Build();
 

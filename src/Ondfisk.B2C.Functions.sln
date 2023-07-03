@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ondfisk.B2C.Functions", "Ondfisk.B2C.Functions\Ondfisk.B2C.Functions.csproj", "{4A2B5CB4-462A-4248-BC53-40D3BF5E7544}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ondfisk.B2C.Functions.Tests", "Ondfisk.B2C.Functions.Tests\Ondfisk.B2C.Functions.Tests.csproj", "{F4FB4003-B02B-484D-8240-A988AC092B29}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4A2B5CB4-462A-4248-BC53-40D3BF5E7544}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A2B5CB4-462A-4248-BC53-40D3BF5E7544}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A2B5CB4-462A-4248-BC53-40D3BF5E7544}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A2B5CB4-462A-4248-BC53-40D3BF5E7544}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4FB4003-B02B-484D-8240-A988AC092B29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4FB4003-B02B-484D-8240-A988AC092B29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4FB4003-B02B-484D-8240-A988AC092B29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4FB4003-B02B-484D-8240-A988AC092B29}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

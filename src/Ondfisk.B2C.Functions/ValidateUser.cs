@@ -1,22 +1,22 @@
 namespace Ondfisk.B2C;
 
-public class UpdateUser
+public class ValidateUser
 {
     private const string CIVIL_REGISTRATION_NUMBER_PROPERTY_NAME = "extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumber";
     private const string CIVIL_REGISTRATION_NUMBER_VALIDATED_PROPERTY_NAME = "extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumberValidated";
 
-    private readonly UpdateUserDtoValidator _validator;
+    private readonly ValidateUserDtoValidator _validator;
     private readonly GraphHelper _helper;
     private readonly ILogger _logger;
 
-    public UpdateUser(UpdateUserDtoValidator validator, GraphHelper helper, ILoggerFactory loggerFactory)
+    public ValidateUser(ValidateUserDtoValidator validator, GraphHelper helper, ILoggerFactory loggerFactory)
     {
         _validator = validator;
-        _logger = loggerFactory.CreateLogger<UpdateUser>();
+        _logger = loggerFactory.CreateLogger<ValidateUser>();
         _helper = helper;
     }
 
-    [Function(nameof(UpdateUser))]
+    [Function(nameof(ValidateUser))]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
     {
         _logger.LogInformation("C# HTTP trigger function processed a request.");
@@ -54,20 +54,20 @@ public class UpdateUser
 
         await _helper.PatchUserAsync(user);
 
-        var updated = new UpdatedUserDto(user.Id!, user.DisplayName!, validated);
+        var updated = new ValidatedUserDto(user.Id ?? string.Empty, user.DisplayName ?? string.Empty, validated);
 
         _logger.LogInformation("Returning: {user}", updated);
 
         return await req.CreateResponse(HttpStatusCode.OK, updated);
     }
 
-    private async Task<(ValidationResult, UpdateUserDto)> ValidateRequest(HttpRequestData req)
+    private async Task<(ValidationResult, ValidateUserDto)> ValidateRequest(HttpRequestData req)
     {
-        UpdateUserDto dto;
+        ValidateUserDto dto;
 
         try
         {
-            dto = await req.ReadFromJsonAsync<UpdateUserDto>() ?? new(string.Empty, string.Empty, string.Empty);
+            dto = await req.ReadFromJsonAsync<ValidateUserDto>() ?? new(string.Empty, string.Empty, string.Empty);
         }
         catch
         {
