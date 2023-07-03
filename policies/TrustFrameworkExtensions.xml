@@ -13,12 +13,12 @@
   </BasePolicy>
   <BuildingBlocks>
     <ClaimsSchema>
-      <ClaimType Id="cprNumber">
-        <DisplayName>CPR Number</DisplayName>
+      <ClaimType Id="civilRegistrationNumber">
+        <DisplayName>Civil Registration Number</DisplayName>
         <DataType>string</DataType>
       </ClaimType>
-      <ClaimType Id="azureAdObjectId">
-        <DisplayName>(Corporate) Azure AD Object ID</DisplayName>
+      <ClaimType Id="azureAdId">
+        <DisplayName>(Corporate) Azure AD ID</DisplayName>
         <DataType>string</DataType>
       </ClaimType>
     </ClaimsSchema>
@@ -49,7 +49,8 @@
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="uuid" />
             <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
-            <OutputClaim ClaimTypeReferenceId="cprNumber" PartnerClaimType="cprNumberIdentifier" />
+            <OutputClaim ClaimTypeReferenceId="civilRegistrationNumber"
+              PartnerClaimType="cprNumberIdentifier" />
             <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="Mit ID"
               AlwaysUseDefaultValue="true" />
             <OutputClaim ClaimTypeReferenceId="authenticationSource"
@@ -84,11 +85,11 @@
             <!-- Claims sent to your REST API -->
             <InputClaim ClaimTypeReferenceId="issuerUserId" />
             <InputClaim ClaimTypeReferenceId="displayName" />
-            <InputClaim ClaimTypeReferenceId="cprNumber" />
+            <InputClaim ClaimTypeReferenceId="civilRegistrationNumber" />
           </InputClaims>
           <OutputClaims>
             <!-- Claims parsed from your REST API -->
-            <OutputClaim ClaimTypeReferenceId="azureAdObjectId" PartnerClaimType="objectId" />
+            <OutputClaim ClaimTypeReferenceId="azureAdId" PartnerClaimType="id" />
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
@@ -98,7 +99,6 @@
   <UserJourneys>
     <UserJourney Id="MitID-SignIn">
       <OrchestrationSteps>
-
         <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp"
           ContentDefinitionReferenceId="api.signuporsignin">
           <ClaimsProviderSelections>
@@ -141,7 +141,6 @@
 
         <OrchestrationStep Order="6" Type="SendClaims"
           CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
-
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
     </UserJourney>

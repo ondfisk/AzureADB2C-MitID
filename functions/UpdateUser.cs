@@ -2,15 +2,18 @@ namespace Ondfisk.B2C;
 
 public class UpdateUser
 {
+    private const string CIVIL_REGISTRATION_NUMBER_PROPERTY_NAME = "extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumber";
+    private const string CIVIL_REGISTRATION_NUMBER_VALIDATED_PROPERTY_NAME = "extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumberValidated";
+
     private readonly UpdateUserDtoValidator _validator;
-    private readonly GraphServiceClient _client;
+    private readonly GraphHelper _helper;
     private readonly ILogger _logger;
 
-    public UpdateUser(UpdateUserDtoValidator validator, GraphServiceClient client, ILoggerFactory loggerFactory)
+    public UpdateUser(UpdateUserDtoValidator validator, GraphHelper helper, ILoggerFactory loggerFactory)
     {
         _validator = validator;
         _logger = loggerFactory.CreateLogger<UpdateUser>();
-        _client = client;
+        _helper = helper;
     }
 
     [Function(nameof(UpdateUser))]
@@ -18,78 +21,44 @@ public class UpdateUser
     {
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
-        HttpResponseData response;
-
         var (validation, dto) = await ValidateRequest(req);
 
         if (!validation.IsValid)
         {
             _logger.LogWarning("Validation failed: {Errors}", validation.Errors);
 
-            response = req.CreateResponse(HttpStatusCode.BadRequest);
-
-            await response.WriteAsJsonAsync(validation.ToDictionary());
-
-            return response;
+            return await req.CreateResponse(HttpStatusCode.BadRequest, validation.ToDictionary());
         }
 
-        _logger.LogInformation("Validation passed: {dto}", new { IssuerUserId = dto.IssuerUserId, DisplayName = dto.DisplayName });
+        _logger.LogInformation("Validation passed: {dto}", new { dto.IssuerUserId, dto.DisplayName });
 
-        var user = new
+        var users = await _helper.GetUsersAsync(CIVIL_REGISTRATION_NUMBER_PROPERTY_NAME, dto.CivilRegistrationNumber.Hash());
+
+        if (!users.Any())
         {
-            ObjectId = Guid.NewGuid().ToString()
-        };
+            _logger.LogWarning("No users found with civil registration number: {CivilRegistrationNumber}", dto.CivilRegistrationNumber);
 
-        _logger.LogInformation("Returning: {user}", user);
+            return await req.CreateResponse(HttpStatusCode.NotFound, new { Message = $"No users found with civil registration number: {dto.CivilRegistrationNumber}" });
+        }
 
-        response = req.CreateResponse(HttpStatusCode.OK);
+        if (users.Count() > 1)
+        {
+            _logger.LogWarning("Multiple users found with civil registration number: {CivilRegistrationNumber}", dto.CivilRegistrationNumber);
 
-        await response.WriteAsJsonAsync(user);
+            return await req.CreateResponse(HttpStatusCode.Conflict, new { Message = $"Multiple users found with civil registration number: {dto.CivilRegistrationNumber}" });
+        }
 
-        return response;
-    }
+        var user = users.Single();
+        var validated = DateTime.UtcNow;
+        user.AdditionalData[CIVIL_REGISTRATION_NUMBER_VALIDATED_PROPERTY_NAME] = validated;
 
-    // private async Task<string> GetUserAsync(string cprNumber)
-    // {
-    //     var hash = HashStringWithSha256(cprNumber);
+        await _helper.PatchUserAsync(user);
 
-    //     // login to graph with managed id
+        var updated = new UpdatedUserDto(user.Id!, user.DisplayName!, validated);
 
+        _logger.LogInformation("Returning: {user}", updated);
 
-
-
-
-    //     // call graph api with hash
-    //     // return user id
-
-    // }
-
-    // private async Task<User> GetUserByExtensionAttributeAsync(string extensionName, string extensionValue)
-    // {
-    //     GraphServiceClient client = GetGraphClient();
-
-    //     var users = await client.Users.Request()
-    //         .Filter($"extension_{extensionName} eq '{extensionValue}'")
-    //         .GetAsync();
-
-    //     return users.FirstOrDefault();
-    // }
-
-    private GraphServiceClient GetGraphClient()
-    {
-        var authProvider = new DefaultAzureCredential();
-
-        return new GraphServiceClient(authProvider);
-    }
-
-    private string HashStringWithSha256(string input)
-    {
-        using var sha256 = SHA256.Create();
-
-        var bytes = Encoding.UTF8.GetBytes(input);
-        var hash = sha256.ComputeHash(bytes);
-
-        return Convert.ToBase64String(hash);
+        return await req.CreateResponse(HttpStatusCode.OK, updated);
     }
 
     private async Task<(ValidationResult, UpdateUserDto)> ValidateRequest(HttpRequestData req)

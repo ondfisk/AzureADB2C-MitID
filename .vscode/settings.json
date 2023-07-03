@@ -1,6 +1,6 @@
 {
-    "aadb2c.ai.id": "f2c34f7f-bc58-48d2-a6d7-8745c8466181",
-    "aadb2c.ai.key": "rllec3qz01xhcoapq4kh7yl1uaz6dj78tkorpo1c",
+    "aadb2c.ai.id": "28e892f1-bc1d-4c5f-967c-0bcbaad47dcb",
+    "aadb2c.ai.key": "kjuli5xuho20z01okmzd86cct5d3jtpv2f3wogf6",
     "aadb2c.ai.maxRows": 30,
     "aadb2c.ai.timespan": 0,
     "aadb2c.ai.duration": 12,
@@ -9,5 +9,5 @@
     "azureFunctions.projectRuntime": "~4",
     "debug.internalConsoleOptions": "neverOpen",
     "azureFunctions.preDeployTask": "publish (functions)",
-    "dotnet.defaultSolution": "functions\\functions.sln"
+    "dotnet.defaultSolution": "AzureADB2C-MitID.sln"
 }

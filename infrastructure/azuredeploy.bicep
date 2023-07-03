@@ -1,9 +1,21 @@
 param location string = resourceGroup().location
+param b2cTenantName string
+param b2cTenantLocation string
 param logAnalyticsWorkspaceName string
 param applicationInsightsName string
 param appServicePlanName string
 param storageAccountName string
 param functionAppName string
+
+resource b2cTenant 'Microsoft.AzureActiveDirectory/b2cDirectories@2021-04-01' = {
+  name: b2cTenantName
+  location: b2cTenantLocation
+  sku: {
+    name: 'PremiumP1'
+    tier: 'A0'
+  }
+  properties: {}
+}
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: logAnalyticsWorkspaceName

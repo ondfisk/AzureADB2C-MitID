@@ -21,11 +21,10 @@
       <!--points
       to refresh token journey when app makes refresh token request-->
       <Endpoint Id="Token" UserJourneyReferenceId="RedeemRefreshToken" />
-
     </Endpoints>
     <UserJourneyBehaviors>
       <JourneyInsights TelemetryEngine="ApplicationInsights"
-        InstrumentationKey="08ba51bd-ccc0-4d13-a5d8-33e5182def64" DeveloperMode="true"
+        InstrumentationKey="56f6ca75-3bfa-4c83-8021-e5489a54e00f" DeveloperMode="true"
         ClientEnabled="false" ServerEnabled="true" TelemetryVersion="1.0.0" />
     </UserJourneyBehaviors>
     <TechnicalProfile Id="PolicyProfile">
@@ -34,12 +33,12 @@
       <OutputClaims>
         <OutputClaim ClaimTypeReferenceId="displayName" />
         <OutputClaim ClaimTypeReferenceId="givenName" />
-        <OutputClaim ClaimTypeReferenceId="cprNumber" />
+        <OutputClaim ClaimTypeReferenceId="civilRegistrationNumber" />
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
         <OutputClaim ClaimTypeReferenceId="identityProvider" />
         <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true"
           DefaultValue="{Policy:TenantObjectId}" />
-        <OutputClaim ClaimTypeReferenceId="azureAdObjectId" />
+        <OutputClaim ClaimTypeReferenceId="azureAdId" />
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>
