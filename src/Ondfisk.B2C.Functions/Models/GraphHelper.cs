@@ -15,7 +15,7 @@ public class GraphHelper : IGraphHelper
     {
         var users = await _client.Users.GetAsync(configuration =>
         {
-            configuration.QueryParameters.Select = new[] { "id", "displayName", propertyName };
+            configuration.QueryParameters.Select = new[] { "id", "displayName", "accountEnabled", propertyName };
             configuration.QueryParameters.Filter = $"{propertyName} eq '{propertyValue}'";
             configuration.QueryParameters.Count = true;
             configuration.Headers.Add("ConsistencyLevel", "eventual");

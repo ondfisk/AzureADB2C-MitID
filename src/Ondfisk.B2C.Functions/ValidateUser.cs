@@ -65,7 +65,7 @@ public class ValidateUser
 
         await _helper.PatchUserAsync(user);
 
-        var updated = new ValidatedUserDto(user.Id!, user.DisplayName!, validated);
+        var updated = new ValidatedUserDto(user.Id!, user.DisplayName!, user.AccountEnabled!.Value, validated);
 
         _logger.LogInformation("Returning: {user}", updated);
 

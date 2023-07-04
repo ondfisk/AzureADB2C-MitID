@@ -76,6 +76,7 @@ public class ValidateUserTests
             {
                 Id = "817e5374-583c-40c0-a84b-e67ab51f05dc",
                 DisplayName = "Test User",
+                AccountEnabled = true,
                 AdditionalData = new Dictionary<string, object>
                 {
                     ["extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumber"] = "x3Xnt1ft5jDNCqERO9ECZhqziCnKUqZCKreChi8mhkY="
@@ -119,6 +120,7 @@ public class ValidateUserTests
             {
                 Id = "817e5374-583c-40c0-a84b-e67ab51f05dc",
                 DisplayName = "Test User",
+                AccountEnabled = true,
                 AdditionalData = new Dictionary<string, object>
                 {
                     ["extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumber"] = "x3Xnt1ft5jDNCqERO9ECZhqziCnKUqZCKreChi8mhkY="
@@ -128,6 +130,7 @@ public class ValidateUserTests
             {
                 Id = "2f3b49ba-3532-4c64-8608-8079a3571e5f",
                 DisplayName = "Test User 2",
+                AccountEnabled = false,
                 AdditionalData = new Dictionary<string, object>
                 {
                     ["extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumber"] = "x3Xnt1ft5jDNCqERO9ECZhqziCnKUqZCKreChi8mhkY="
