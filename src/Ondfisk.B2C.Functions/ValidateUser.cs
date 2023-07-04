@@ -6,18 +6,20 @@ public class ValidateUser
     private const string CIVIL_REGISTRATION_NUMBER_VALIDATED_PROPERTY_NAME = "extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumberValidated";
 
     private readonly ValidateUserDtoValidator _validator;
-    private readonly GraphHelper _helper;
+    private readonly IGraphHelper _helper;
+    private readonly Func<DateTime> _utcNow;
     private readonly ILogger _logger;
 
-    public ValidateUser(ValidateUserDtoValidator validator, GraphHelper helper, ILoggerFactory loggerFactory)
+    public ValidateUser(ValidateUserDtoValidator validator, IGraphHelper helper, Func<DateTime> utcNow, ILoggerFactory loggerFactory)
     {
         _validator = validator;
-        _logger = loggerFactory.CreateLogger<ValidateUser>();
+        _utcNow = utcNow;
         _helper = helper;
+        _logger = loggerFactory.CreateLogger<ValidateUser>();
     }
 
     [Function(nameof(ValidateUser))]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req)
     {
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
@@ -27,29 +29,29 @@ public class ValidateUser
         {
             _logger.LogWarning("Validation failed: {Errors}", validation.Errors);
 
-            return await req.CreateResponse(HttpStatusCode.BadRequest, validation.ToDictionary());
+            return new BadRequestObjectResult(validation.ToDictionary());
         }
 
         _logger.LogInformation("Validation passed: {dto}", new { dto.IssuerUserId, dto.DisplayName });
 
-        var users = await _helper.GetUsersAsync(CIVIL_REGISTRATION_NUMBER_PROPERTY_NAME, dto.CivilRegistrationNumber.Hash());
+        var users = await _helper.GetUsersAsync(CIVIL_REGISTRATION_NUMBER_PROPERTY_NAME, Hash(dto.CivilRegistrationNumber));
 
         if (!users.Any())
         {
             _logger.LogWarning("No users found with civil registration number: {CivilRegistrationNumber}", dto.CivilRegistrationNumber);
 
-            return await req.CreateResponse(HttpStatusCode.NotFound, new { Message = $"No users found with civil registration number: {dto.CivilRegistrationNumber}" });
+            return new NotFoundObjectResult(new { Message = $"No users found with civil registration number: {dto.CivilRegistrationNumber}" });
         }
 
         if (users.Count() > 1)
         {
             _logger.LogWarning("Multiple users found with civil registration number: {CivilRegistrationNumber}", dto.CivilRegistrationNumber);
 
-            return await req.CreateResponse(HttpStatusCode.Conflict, new { Message = $"Multiple users found with civil registration number: {dto.CivilRegistrationNumber}" });
+            return new ConflictObjectResult(new { Message = $"Multiple users found with civil registration number: {dto.CivilRegistrationNumber}" });
         }
 
         var user = users.Single();
-        var validated = DateTime.UtcNow;
+        var validated = _utcNow();
         user.AdditionalData[CIVIL_REGISTRATION_NUMBER_VALIDATED_PROPERTY_NAME] = validated;
 
         await _helper.PatchUserAsync(user);
@@ -58,24 +60,42 @@ public class ValidateUser
 
         _logger.LogInformation("Returning: {user}", updated);
 
-        return await req.CreateResponse(HttpStatusCode.OK, updated);
+        return new OkObjectResult(updated);
     }
 
-    private async Task<(ValidationResult, ValidateUserDto)> ValidateRequest(HttpRequestData req)
+    private async Task<(ValidationResult, ValidateUserDto)> ValidateRequest(HttpRequest req)
     {
-        ValidateUserDto dto;
-
         try
         {
-            dto = await req.ReadFromJsonAsync<ValidateUserDto>() ?? new(string.Empty, string.Empty, string.Empty);
+            var dto = await req.ReadFromJsonAsync<ValidateUserDto>();
+
+            if (dto != null)
+            {
+                var validation = await _validator.ValidateAsync(dto);
+
+                return (validation, dto);
+            }
         }
         catch
         {
-            dto = new(string.Empty, string.Empty, string.Empty);
         }
 
-        var validation = await _validator.ValidateAsync(dto);
+        var validationFailures = new[]
+        {
+            new ValidationFailure(string.Empty, "Unable to parse input.")
+        };
 
-        return (validation, dto);
+        var validationResult = new ValidationResult(validationFailures);
+
+        return (validationResult, new ValidateUserDto(string.Empty, string.Empty, string.Empty));
+    }
+
+    public static string Hash(string value)
+    {
+        var bytes = Encoding.UTF8.GetBytes(value);
+
+        var hash = SHA256.HashData(bytes);
+
+        return Convert.ToBase64String(hash);
     }
 }

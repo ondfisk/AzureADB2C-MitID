@@ -1,5 +1,5 @@
 var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
     {
         services.AddValidatorsFromAssemblyContaining<Program>();

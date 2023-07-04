@@ -2,6 +2,8 @@ global using System.Net;
 global using System.Security.Cryptography;
 global using System.Text;
 
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.Azure.Functions.Worker;
 global using Microsoft.Azure.Functions.Worker.Http;
 global using Microsoft.Extensions.DependencyInjection;
