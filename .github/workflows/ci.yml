@@ -27,12 +27,15 @@ jobs:
 
       - name: Restore
         run: dotnet restore
+        working-directory: ./src
 
       - name: Build
         run: dotnet build --configuration Release --no-restore
+        working-directory: ./src
 
       - name: Test
         run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+        working-directory: ./src
 
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
