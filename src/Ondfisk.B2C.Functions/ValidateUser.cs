@@ -23,7 +23,16 @@ public class ValidateUser
     {
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
-        var (validation, dto) = await ValidateRequest(req);
+        var dto = await ParseInput(req);
+
+        if (dto == null)
+        {
+            _logger.LogWarning("Unable to parse input.");
+
+            return new BadRequestObjectResult("Unable to parse input.");
+        }
+
+        var validation = await _validator.ValidateAsync(dto);
 
         if (!validation.IsValid)
         {
@@ -38,16 +47,16 @@ public class ValidateUser
 
         if (!users.Any())
         {
-            _logger.LogWarning("No users found with civil registration number: {CivilRegistrationNumber}", dto.CivilRegistrationNumber);
+            _logger.LogWarning("No users found with given civil registration number");
 
-            return new NotFoundObjectResult(new { Message = $"No users found with civil registration number: {dto.CivilRegistrationNumber}" });
+            return new NotFoundObjectResult("No users found with given civil registration number");
         }
 
         if (users.Count() > 1)
         {
-            _logger.LogWarning("Multiple users found with civil registration number: {CivilRegistrationNumber}", dto.CivilRegistrationNumber);
+            _logger.LogWarning("Multiple users found with given civil registration number");
 
-            return new ConflictObjectResult(new { Message = $"Multiple users found with civil registration number: {dto.CivilRegistrationNumber}" });
+            return new ConflictObjectResult("No users found with given civil registration number");
         }
 
         var user = users.Single();
@@ -56,41 +65,26 @@ public class ValidateUser
 
         await _helper.PatchUserAsync(user);
 
-        var updated = new ValidatedUserDto(user.Id ?? string.Empty, user.DisplayName ?? string.Empty, validated);
+        var updated = new ValidatedUserDto(user.Id!, user.DisplayName!, validated);
 
         _logger.LogInformation("Returning: {user}", updated);
 
         return new OkObjectResult(updated);
     }
 
-    private async Task<(ValidationResult, ValidateUserDto)> ValidateRequest(HttpRequest req)
+    private async Task<ValidateUserDto?> ParseInput(HttpRequest req)
     {
         try
         {
-            var dto = await req.ReadFromJsonAsync<ValidateUserDto>();
-
-            if (dto != null)
-            {
-                var validation = await _validator.ValidateAsync(dto);
-
-                return (validation, dto);
-            }
+            return await req.ReadFromJsonAsync<ValidateUserDto>();
         }
         catch
         {
+            return null;
         }
-
-        var validationFailures = new[]
-        {
-            new ValidationFailure(string.Empty, "Unable to parse input.")
-        };
-
-        var validationResult = new ValidationResult(validationFailures);
-
-        return (validationResult, new ValidateUserDto(string.Empty, string.Empty, string.Empty));
     }
 
-    public static string Hash(string value)
+    private static string Hash(string value)
     {
         var bytes = Encoding.UTF8.GetBytes(value);
 
