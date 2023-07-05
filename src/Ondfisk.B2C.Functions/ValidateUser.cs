@@ -72,7 +72,7 @@ public class ValidateUser
         return new OkObjectResult(updated);
     }
 
-    private async Task<ValidateUserDto?> ParseInput(HttpRequest req)
+    private static async Task<ValidateUserDto?> ParseInput(HttpRequest req)
     {
         try
         {
