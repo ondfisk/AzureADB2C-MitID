@@ -1,13 +1,19 @@
 # Azure AD B2C - MitID integration
 
-Sample app demonstrating how to use Azure AD B2C with MitID to validate a citizens civil registration number (colloquially: CPR number) and write back a custom attribute in the corporate Azure AD.
+Sample app demonstrating how to use Azure AD B2C with [MitID](https://www.mitid.dk/) to validate a citizens civil registration number (colloquially: CPR number) and write back a custom attribute in the corporate Azure AD.
 
 This is done to be [NSIS](https://digst.dk/it-loesninger/standarder/nsis/) compliant.
+
+## Use cases
+
+- Use MitID to ensure a given user has validated her civil registration number (this sample).
+- Use MitID to enable a disabled account.
+- Use MitID to perform a password reset.
 
 ## Prerequisites
 
 1. Create an account on <https://www.criipto.com/> and create an App Registration on their side. Capture client id and client secret.
-1. For production: All users should have their civil registration number stored in Azure AD (value to be hashed using SHA256 and subsequently base64 encoded).
+1. For production: All users should have their civil registration number (ten digits, no dash) stored in Azure AD (value to be hashed using SHA256 and subsequently base64 encoded).
 
 ## Flow
 

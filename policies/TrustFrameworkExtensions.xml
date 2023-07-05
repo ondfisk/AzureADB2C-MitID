@@ -25,10 +25,10 @@
   </BuildingBlocks>
   <ClaimsProviders>
     <ClaimsProvider>
-      <DisplayName>Mit ID</DisplayName>
+      <DisplayName>MitID</DisplayName>
       <TechnicalProfiles>
         <TechnicalProfile Id="MitID-OIDC">
-          <DisplayName>Mit ID</DisplayName>
+          <DisplayName>MitID</DisplayName>
           <Protocol Name="OpenIdConnect" />
           <Metadata>
             <Item Key="client_id">urn:my:application:identifier:412703</Item>
@@ -51,7 +51,7 @@
             <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
             <OutputClaim ClaimTypeReferenceId="civilRegistrationNumber"
               PartnerClaimType="cprNumberIdentifier" />
-            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="Mit ID"
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="MitID"
               AlwaysUseDefaultValue="true" />
             <OutputClaim ClaimTypeReferenceId="authenticationSource"
               DefaultValue="socialIdpAuthentication" AlwaysUseDefaultValue="true" />
