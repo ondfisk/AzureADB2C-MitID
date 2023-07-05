@@ -64,7 +64,20 @@ public class ValidateUserTests
     }
 
     [Fact]
-    public async Task Run_WithValidRequestAndMatchingUser_patches_CivilRegistationNumberValidated_and_ReturnsOkObjectResult()
+    public async Task Run_WithInvalidJsonRequest_ReturnsBadRequestObjectResult()
+    {
+        // Arrange
+        var req = CreateHttpRequest("POST", "{{");
+
+        // Act
+        var result = await _function.Run(req);
+
+        // Assert
+        result.Should().BeOfType<BadRequestObjectResult>();
+    }
+
+    [Fact]
+    public async Task Run_WithValidRequestAndMatchingUser_patches_CivilRegistationNumberValidated_and_ReturnsOkObjectResultWithUser()
     {
         // Arrange
         var dto = new ValidateUserDto("ce64b510-1877-49d5-9ce4-2b2e0dd0b9af", "Test User", "1234567890");
@@ -85,12 +98,19 @@ public class ValidateUserTests
         });
 
         // Act
-        var result = await _function.Run(req);
+        var result = await _function.Run(req) as OkObjectResult;
 
         // Assert
         _helperMock.Verify(x => x.PatchUserAsync(It.Is<User>(u => (DateTime)u.AdditionalData["extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumberValidated"] == DateTime.Parse("2020-02-02 20:20:20"))), Times.Once);
 
-        Assert.IsType<OkObjectResult>(result);
+        Assert.NotNull(result);
+        var user = result.Value as ValidatedUserDto;
+        Assert.NotNull(user);
+        user.Id.Should().Be("817e5374-583c-40c0-a84b-e67ab51f05dc");
+        user.DisplayName.Should().Be("Test User");
+        user.AccountEnabled.Should().BeTrue();
+        user.CivilRegistrationNumberValidated.Should().Be(DateTime.Parse("2020-02-02 20:20:20"));
+
     }
 
     [Fact]
@@ -104,7 +124,7 @@ public class ValidateUserTests
         var result = await _function.Run(req);
 
         // Assert
-        Assert.IsType<NotFoundObjectResult>(result);
+        result.Should().BeOfType<NotFoundObjectResult>();
     }
 
     [Fact]
@@ -142,6 +162,6 @@ public class ValidateUserTests
         var result = await _function.Run(req);
 
         // Assert
-        Assert.IsType<ConflictObjectResult>(result);
+        result.Should().BeOfType<ConflictObjectResult>();
     }
 }
