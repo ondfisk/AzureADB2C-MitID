@@ -1,2 +1,0 @@
-// Transform XML - ondfiskb2c -> tenantname
-// Script upload of all policies

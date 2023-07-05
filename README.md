@@ -1,12 +1,41 @@
 # Azure AD B2C - MitID integration
 
-Sample app demonstrating how to use Azure AD B2C with MitID to obtain a validated CPR number and subsequently write back to Azure AD.
+Sample app demonstrating how to use Azure AD B2C with [MitID](https://www.mitid.dk/) to validate a citizens civil registration number (colloquially: CPR number) and write back a custom attribute in the corporate Azure AD.
 
 This is done to be [NSIS](https://digst.dk/it-loesninger/standarder/nsis/) compliant.
 
+## Use cases
+
+- Use MitID to ensure a given user has validated her civil registration number (this sample).
+- Use MitID to enable a disabled account.
+- Use MitID to perform a password reset.
+
 ## Prerequisites
 
-Sample requires you to create an account on <https://www.criipto.com/> and create an App Registration on their side. Capture client id and client secret.
+1. Create an account on <https://www.criipto.com/> and create an App Registration on their side. Capture client id and client secret.
+1. For production: All users should have their civil registration number (ten digits, no dash) stored in Azure AD (value to be hashed using SHA256 and subsequently base64 encoded).
+
+## Flow
+
+![Flow](sequence-diagram.svg)
+
+Source from <https://sequencediagram.org/>:
+
+```txt
+title Flow
+
+User->App:Initiate sign in
+App->Azure AD B2C:Redirect to Azure AD B2C
+Azure AD B2C->Criipto:Redirect to Criipto to sign in with MitID
+Criipto->Azure AD B2C:Return claims with uuid, name, and cprNumberIdentifier
+Azure AD B2C->Azure AD B2C: Translate claims
+Azure AD B2C->Azure Function:Call Azure Function with issuerUserId, displayName, and civilRegistrationNumber
+Azure Function->Azure AD:Lookup user on hashed civilRegistrationNumber
+Azure Function->Azure AD:If found, update user with civilRegistrationNumberValidated (UTC Now)
+Azure Function->Azure AD B2C:Return user with id, displayName, accountEnabled, and civilRegistrationNumberValidated
+Azure AD B2C->App:Return claims
+App->User:Signed in
+```
 
 ## Setup
 
