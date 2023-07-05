@@ -9,6 +9,6 @@
     "azureFunctions.projectRuntime": "~4",
     "debug.internalConsoleOptions": "neverOpen",
     "azureFunctions.preDeployTask": "publish (functions)",
-    "dotnet.defaultSolution": "src/Ondfisk.B2C.Functions.sln",
+    "dotnet.defaultSolution": "Ondfisk.B2C.Functions.sln",
     "azureFunctions.projectSubpath": "src\\Ondfisk.B2C.Functions"
 }

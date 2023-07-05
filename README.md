@@ -11,7 +11,25 @@ This is done to be [NSIS](https://digst.dk/it-loesninger/standarder/nsis/) compl
 
 ## Flow
 
-![Flow](https://sequencediagram.org/index.html?presentationMode=readOnly#initialData=C4S2BsFMAIHUHsBOBrAZueB3AUNgqgM6SIC0AfAIIBeArojBQCLQBCATAMIBcAkgHZgQAQ2AwCIAOZ9oIPtmp0Gzdh3IdEIEAAdg8LgCVIAExD0AxsGi7o6zTvhWH4qTOmYwAC2gBZMD0bYttq65Ar00EysnAaQwHTSZuBCIAC2BNDuwF40NCBGADTQfEIpkIVCfEbQZlqIAHI0KQBGxDxGkHygqCDE8rThkSqh-UpR3NAAKogVBEmi1UmpBH2KEcqcw6sAYjR8FiDwfFwcQuDgESPQO3ughxmeMgQENMSErQXQJgRaSQCedSUytAKlUzCAAG4gcCGCQgAjAaa3PgNZq9MIwa77Q6bAaMLgAGXg8GQNC00BoREQ0DuHiEBA8xmqEKhMLhCJEB2RjRaiBW4UxSJxSl4qGgqHguw+pKMIhgFOI9yyTMh0MgsPhiM5KJ5ADVTnlZVUABR4CYcaB1LAASj5GN2WL4QrWYxicUQ0nlVMyXjyhS+PyE-0B5TMZglnQAosUmlAPiDlSy1WzNYdtcQ9eADaIjLbnUMyG9EK74gtkmkgA)
+![Flow](sequence-diagram.svg)
+
+Source from <https://sequencediagram.org/>:
+
+```txt
+title Flow
+
+User->App:Initiate sign in
+App->Azure AD B2C:Redirect to Azure AD B2C
+Azure AD B2C->Criipto:Redirect to Criipto to sign in with MitID
+Criipto->Azure AD B2C:Return claims with uuid, name, and cprNumberIdentifier
+Azure AD B2C->Azure AD B2C: Translate claims
+Azure AD B2C->Azure Function:Call Azure Function with issuerUserId, displayName, and civilRegistrationNumber
+Azure Function->Azure AD:Lookup user on hashed civilRegistrationNumber
+Azure Function->Azure AD:If found, update user with civilRegistrationNumberValidated (UTC Now)
+Azure Function->Azure AD B2C:Return user with id, displayName, accountEnabled, and civilRegistrationNumberValidated
+Azure AD B2C->App:Return claims
+App->User:Signed in
+```
 
 ## Setup
 
