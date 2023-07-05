@@ -19,7 +19,7 @@ az deployment group create \
   --name "ondfiskb2c" \
   --resource-group $RESOURCE_GROUP_NAME \
   --template-file "$DIR/azuredeploy.bicep" \
-  --parameters @"$DIR/azuredeploy.parameters.json"
+  --parameters @"$DIR/azuredeploy.bicepparam"
 
 # Get function app managed identity
 APP_ROLE="User.ReadWrite.All"

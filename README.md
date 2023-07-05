@@ -12,6 +12,7 @@ This is done to be [NSIS](https://digst.dk/it-loesninger/standarder/nsis/) compl
 
 ## Prerequisites
 
+1. Create an Azure AD B2C tenant using the [Azure Portal](https://portal.azure.com/).
 1. Create an account on <https://www.criipto.com/> and create an App Registration on their side. Capture client id and client secret.
 1. For production: All users should have their civil registration number (ten digits, no dash) stored in Azure AD (value to be hashed using SHA256 and subsequently base64 encoded).
 
@@ -49,6 +50,7 @@ App->User:Signed in
 
 ```http
 POST https://graph.microsoft.com/v1.0/users
+Content-type: application/json
 
 {
     "accountEnabled": true,
@@ -97,6 +99,7 @@ Capture `id` and `appId`
 
 ```http
 POST https://graph.microsoft.com/v1.0/servicePrincipals
+Content-type: application/json
 
 {
     "appId": "1be97e58-6e49-44ee-a17a-42fd1fc944cf"
@@ -145,6 +148,7 @@ $base64
 
 ```http
 PATCH https://graph.microsoft.com/v1.0/users/e110ccf5-f660-4777-ace0-ed9c56f04981
+Content-type: application/json
 
 {
     "extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumber": "yqaVIggNuNCpgvScLH9GdX0gB3LMo+LUuGc8Jv+bxSc="
@@ -168,7 +172,8 @@ Under `/src/Ondfisk.B2C.Functions`, create a `local.settings.json`:
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "AzureWebJobsFeatureFlags": "EnableHttpProxying"
   }
 }
 ```
@@ -176,6 +181,8 @@ Under `/src/Ondfisk.B2C.Functions`, create a `local.settings.json`:
 Deploy `/src/Ondfisk.B2C.Functions`.
 
 Capture the *default function key* from the `ValidateUser` function.
+
+**Note**: You may want consider using a client credential flow instead of function keys.
 
 ## Azure AD B2C
 
@@ -194,6 +201,8 @@ Capture the *default function key* from the `ValidateUser` function.
 Using your newly created Application Insights resource follow this guide:
 
 [Collect Azure Active Directory B2C logs with Application Insights](https://learn.microsoft.com/en-us/azure/active-directory-b2c/troubleshoot-with-application-insights?pivots%253Db2c-custom-policy#see-the-logs-in-application-insights)
+
+**Note**: Remember to change `DeploymentMode="Development"` and `DeveloperMode="true"` before moving to production.
 
 ### Update policies
 

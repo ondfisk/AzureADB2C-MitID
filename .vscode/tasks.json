@@ -64,7 +64,7 @@
 			"dependsOn": "clean release (functions)",
 			"problemMatcher": "$msCompile",
 			"options": {
-				"cwd": "${workspaceFolder}/functions"
+				"cwd": "${workspaceFolder}/src/Ondfisk.B2C.Functions"
 			}
 		},
 		{
