@@ -12,7 +12,7 @@
 			"type": "process",
 			"problemMatcher": "$msCompile",
 			"options": {
-				"cwd": "${workspaceFolder}/functions"
+				"cwd": "${workspaceFolder}/src/Ondfisk.B2C.Functions"
 			}
 		},
 		{
@@ -31,7 +31,7 @@
 			},
 			"problemMatcher": "$msCompile",
 			"options": {
-				"cwd": "${workspaceFolder}/functions"
+				"cwd": "${workspaceFolder}/src/Ondfisk.B2C.Functions"
 			}
 		},
 		{
@@ -47,7 +47,7 @@
 			"type": "process",
 			"problemMatcher": "$msCompile",
 			"options": {
-				"cwd": "${workspaceFolder}/functions"
+				"cwd": "${workspaceFolder}/src/Ondfisk.B2C.Functions"
 			}
 		},
 		{
@@ -71,7 +71,7 @@
 			"type": "func",
 			"dependsOn": "build (functions)",
 			"options": {
-				"cwd": "${workspaceFolder}/functions/bin/Debug/net7.0"
+				"cwd": "${workspaceFolder}/src/Ondfisk.B2C.Functions/bin/Debug/net7.0"
 			},
 			"command": "host start",
 			"isBackground": true,

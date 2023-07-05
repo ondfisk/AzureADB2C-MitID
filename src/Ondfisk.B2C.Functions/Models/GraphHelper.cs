@@ -1,6 +1,6 @@
-namespace Ondfisk.B2C;
+namespace Ondfisk.B2C.Models;
 
-public class GraphHelper
+public class GraphHelper : IGraphHelper
 {
     private readonly GraphServiceClient _client;
 
@@ -15,7 +15,7 @@ public class GraphHelper
     {
         var users = await _client.Users.GetAsync(configuration =>
         {
-            configuration.QueryParameters.Select = new[] { "id", "displayName", propertyName };
+            configuration.QueryParameters.Select = new[] { "id", "displayName", "accountEnabled", propertyName };
             configuration.QueryParameters.Filter = $"{propertyName} eq '{propertyValue}'";
             configuration.QueryParameters.Count = true;
             configuration.Headers.Add("ConsistencyLevel", "eventual");

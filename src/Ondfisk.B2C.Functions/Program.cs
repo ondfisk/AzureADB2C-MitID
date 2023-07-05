@@ -1,11 +1,11 @@
 var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
     {
         services.AddValidatorsFromAssemblyContaining<Program>();
         services.AddScoped(_ => new GraphServiceClient(new DefaultAzureCredential()));
-        services.AddScoped<GraphHelper>();
+        services.AddScoped<IGraphHelper, GraphHelper>();
     })
     .Build();
 
-host.Run();
+await host.RunAsync();

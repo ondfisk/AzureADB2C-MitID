@@ -68,13 +68,13 @@
     <ClaimsProvider>
       <DisplayName>REST APIs</DisplayName>
       <TechnicalProfiles>
-        <TechnicalProfile Id="UpdateUser-REST">
+        <TechnicalProfile Id="ValidateUser-REST">
           <DisplayName>Update CPR number in Azure AD using Azure Function web hook</DisplayName>
           <Protocol Name="Proprietary"
             Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
             <!-- Set the ServiceUrl with your own REST API endpoint -->
-            <Item Key="ServiceUrl">https://ondfiskb2c.azurewebsites.net/api/UpdateUser</Item>
+            <Item Key="ServiceUrl">https://ondfiskb2c.azurewebsites.net/api/ValidateUser</Item>
             <Item Key="AuthenticationType">ApiKeyHeader</Item>
             <Item Key="SendClaimsIn">Body</Item>
           </Metadata>
@@ -135,7 +135,7 @@
 
         <OrchestrationStep Order="5" Type="ClaimsExchange">
           <ClaimsExchanges>
-            <ClaimsExchange Id="RestUpdateUser" TechnicalProfileReferenceId="UpdateUser-REST" />
+            <ClaimsExchange Id="RestValidateUser" TechnicalProfileReferenceId="ValidateUser-REST" />
           </ClaimsExchanges>
         </OrchestrationStep>
 

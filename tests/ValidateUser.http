@@ -1,0 +1,55 @@
+POST http://localhost:7071/api/ValidateUser
+Content-Type: application/json; charset=utf-8
+
+{
+    "issuerUserId": "94db4acf-cd0f-4d53-86e9-8c09273341e9",
+    "displayName": "Åge Petersen",
+    "civilRegistrationNumber": "0905540335"
+}
+
+###
+
+POST http://localhost:7071/api/ValidateUser
+Content-Type: application/json; charset=utf-8
+
+{
+    "issuerUserId": "",
+    "displayName": null,
+    "civilRegistrationNumber": "42"
+}
+
+###
+
+POST http://localhost:7071/api/ValidateUser
+Content-Type: application/json; charset=utf-8
+
+{
+    "issuerUserId": "",
+    "displayName": null,
+    "civilRegistrationNumber": 42
+}
+
+###
+
+POST http://localhost:7071/api/ValidateUser
+Content-Type: application/json; charset=utf-8
+
+{}
+
+###
+
+POST http://localhost:7071/api/ValidateUser
+Content-Type: application/json; charset=utf-8
+
+[]
+
+###
+
+POST http://localhost:7071/api/ValidateUser
+Content-Type: application/json; charset=utf-8
+
+null
+
+###
+
+POST http://localhost:7071/api/ValidateUser

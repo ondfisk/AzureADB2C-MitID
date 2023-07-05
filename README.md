@@ -4,16 +4,15 @@ Sample app demonstrating how to use Azure AD B2C with MitID to obtain a validate
 
 This is done to be [NSIS](https://digst.dk/it-loesninger/standarder/nsis/) compliant.
 
-# Setup
-
-## General
+## Prerequisites
 
 Sample requires you to create an account on <https://www.criipto.com/> and create an App Registration on their side. Capture client id and client secret.
 
 ## Setup
 
 1. Clone code
-1. Search and replace all instances of `ondfiskb2c` with `<your-tenant-name>`
+1. Search and replace all instances of `ondfiskb2c` with `<your-azure-ad-b2c-tenant-name>`
+1. Search and replace all instances of `ondfisk` with `<your-azure-ad-tenant-name>`
 
 ## Azure AD
 
@@ -38,9 +37,9 @@ POST https://graph.microsoft.com/v1.0/users
 }
 ```
 
-Capture `id`
+Capture `id`:
 
-- Id: `e110ccf5-f660-4777-ace0-ed9c56f04981`
+- `id`: `e110ccf5-f660-4777-ace0-ed9c56f04981`
 
 ### Create app registration for storing user data
 
@@ -60,10 +59,10 @@ Content-type: application/json
 }
 ```
 
-Capture `appId` and `id`
+Capture `id` and `appId`
 
-- AppId: `1be97e58-6e49-44ee-a17a-42fd1fc944cf`
-- Id: `c45cf23e-e189-4b24-95d7-8814c4d09736`
+- `id`: `c45cf23e-e189-4b24-95d7-8814c4d09736`
+- `appId`: `1be97e58-6e49-44ee-a17a-42fd1fc944cf`
 
 ### Create service principal for app
 
@@ -75,7 +74,7 @@ POST https://graph.microsoft.com/v1.0/servicePrincipals
 }
 ```
 
-### Create a directory extension definitions
+### Create directory extension definitions
 
 ```http
 POST https://graph.microsoft.com/v1.0/applications/c45cf23e-e189-4b24-95d7-8814c4d09736/extensionProperties
@@ -133,7 +132,7 @@ Deploy resources:
 
 ### Azure Functions
 
-Under `/functions`, create a `local.settings.json`:
+Under `/src/Ondfisk.B2C.Functions`, create a `local.settings.json`:
 
 ```json
 {
@@ -145,9 +144,9 @@ Under `/functions`, create a `local.settings.json`:
 }
 ```
 
-Deploy `/functions`.
+Deploy `/src/Ondfisk.B2C.Functions`.
 
-Capture the *default function key* from the `UpdateUser` function.
+Capture the *default function key* from the `ValidateUser` function.
 
 ## Azure AD B2C
 
@@ -161,9 +160,9 @@ Capture the *default function key* from the `UpdateUser` function.
     - Permissions: `[X]` Grant admin consent to openid and offline_access permissions
     - Authentication/Implicit grant and hybrid flows: `[X]` Access tokens (used for implicit flows)
 
-### Application Insights
+### Configure Application Insights for Azure AD B2C
 
-Using your newly created Application Insights resource:
+Using your newly created Application Insights resource follow this guide:
 
 [Collect Azure Active Directory B2C logs with Application Insights](https://learn.microsoft.com/en-us/azure/active-directory-b2c/troubleshoot-with-application-insights?pivots%253Db2c-custom-policy#see-the-logs-in-application-insights)
 
@@ -171,9 +170,9 @@ Using your newly created Application Insights resource:
 
 Using the data from your Criipto App Registration:
 
-    - Update `policies/TrustFrameworkExtensions.xml` with client id
-    - Create policy key `MitIDClientSecret` with client secret
-    - Create policy key `FunctionsKey` with function key
+- Update `policies/TrustFrameworkExtensions.xml` with client id
+- Create policy key `MitIDClientSecret` with client secret
+- Create policy key `FunctionsKey` with function key
 
 ### Upload policies
 
