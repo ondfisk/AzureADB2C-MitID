@@ -10,10 +10,29 @@ This is done to be [NSIS](https://digst.dk/it-loesninger/standarder/nsis/) compl
 - Use MitID to enable a disabled account.
 - Use MitID to perform a password reset.
 
+## About MitID brokers
+
+To enable MitID with Azure AD B2C, you need to use a [MitID broker](https://digst.dk/it-loesninger/mitid/nyheder-om-mitid/nyheder-fra-2021/11-brokere-i-mitid/).
+
+This sample currently supports [Criipto](https://www.criipto.com/) but more brokers may be added in the future. If you manage to make it work with another broker, do sends us a PR.
+
 ## Prerequisites
 
 1. Create an Azure AD B2C tenant using the [Azure Portal](https://portal.azure.com/).
-1. Create an account on <https://www.criipto.com/> and create an App Registration on their side. Capture client id and client secret.
+1. [Deploy AAD B2C Custom Policies](https://b2ciefsetupapp.azurewebsites.net/) (check *Remove Facebook references*).
+1. Find the newly created *App Registration* (IEF Test App):
+
+    - Go to *Authentication* and click the link to *migrate* URIs.
+    - Under *Implicit grant and hybrid flows* uncheck *ID tokens (used for implicit and hybrid flows)*
+    - Go to *API permissions* and click [`Grant admin consent for <your-azure-ad-b2c-tenant-name>`].
+
+1. Create an account on [Criipto](https://www.criipto.com/) and create an Application:
+
+    - Callback url; `https://<your-azure-ad-b2c-tenant-name>.b2clogin.com/<your-azure-ad-b2c-tenant-name>.onmicrosoft.com/oauth2/authresp`.
+    - e-IDs: `DK MitID` only.
+
+   Capture client id and client secret. Store the client secret under *policy keys* as `CriiptoClientSecret`.
+
 1. For production: All users should have their civil registration number (ten digits, no dash) stored in Azure AD (value to be hashed using SHA256 and subsequently base64 encoded).
 
 ## Flow
@@ -27,8 +46,8 @@ title Flow
 
 User->App:Initiate sign in
 App->Azure AD B2C:Redirect to Azure AD B2C
-Azure AD B2C->Criipto:Redirect to Criipto to sign in with MitID
-Criipto->Azure AD B2C:Return claims with uuid, name, and cprNumberIdentifier
+Azure AD B2C->MitID Broker:Redirect to MitID Broker to sign in with MitID
+MitID Broker->Azure AD B2C:Return claims with uuid, name, and cprNumberIdentifier
 Azure AD B2C->Azure AD B2C: Translate claims
 Azure AD B2C->Azure Function:Call Azure Function with issuerUserId, displayName, and civilRegistrationNumber
 Azure Function->Azure AD:Lookup user on hashed civilRegistrationNumber
@@ -44,7 +63,50 @@ App->User:Signed in
 1. Search and replace all instances of `ondfiskb2c` with `<your-azure-ad-b2c-tenant-name>`
 1. Search and replace all instances of `ondfisk` with `<your-azure-ad-tenant-name>`
 
+## Create Azure Resources
+
+```bash
+#!/bin/bash
+
+SUBSCRIPTION_ID="2b554ca5-5009-4849-9b8b-730a9820de6a"
+RESOURCE_GROUP_NAME="ondfiskb2c"
+LOCATION="swedencentral"
+FUNCTION_APP_NAME="ondfiskb2c"
+
+# Set subscription
+az account set --subscription $SUBSCRIPTION_ID
+
+# Create resource group
+az group create --name $RESOURCE_GROUP_NAME --location $LOCATION
+
+# Deploy resources
+az deployment group create \
+--resource-group $RESOURCE_GROUP_NAME \
+--template-file "infrastructure/azuredeploy.bicep" \
+--parameters "infrastructure/azuredeploy.bicepparam"
+```
+
+Capture `functionAppManagedIdentity`:
+
+- `functionAppManagedIdentity`: `4c8f6136-3449-4196-a0e9-393175027044`
+
 ## Azure AD
+
+### Grant function app User.ReadWrite.All permissions
+
+```bash
+#!/bin/bash
+
+APP_ROLE="User.ReadWrite.All"
+MANAGED_IDENTITY=$(az functionapp identity show --resource-group $RESOURCE_GROUP_NAME --name $FUNCTION_APP_NAME --query principalId --output tsv)
+MICROSOFT_GRAPH=$(az rest --method GET --uri "https://graph.microsoft.com/v1.0/servicePrincipals?\$filter=displayName+eq+'Microsoft+Graph'" --query "value[].id" --output tsv)
+APP_ROLE_ID=$(az rest --method GET --uri "https://graph.microsoft.com/v1.0/servicePrincipals/$MICROSOFT_GRAPH" --query "appRoles[?value=='$APP_ROLE'].id" --output tsv)
+CURRENT=$(az rest --method GET --uri "https://graph.microsoft.com/v1.0/servicePrincipals/$MANAGED_IDENTITY/appRoleAssignments" --query "value[?appRoleId=='$APP_ROLE_ID'].id" --output tsv)
+
+if [ -z $CURRENT ]; then
+    az rest --method POST --uri "https://graph.microsoft.com/v1.0/servicePrincipals/$MANAGED_IDENTITY/appRoleAssignments" --body "{\"principalId\":\"$MANAGED_IDENTITY\",\"resourceId\":\"$MICROSOFT_GRAPH\",\"appRoleId\":\"$APP_ROLE_ID\"}"
+fi
+```
 
 ### Create test user
 
@@ -144,6 +206,18 @@ $base64 = [System.Convert]::ToBase64String($hash)
 $base64
 ```
 
+or
+
+```bash
+#!/bin/bash
+
+civilRegistrationNumber="0905540335"
+hash=$(echo -n $civilRegistrationNumber | sha256sum | awk '{print $1}')
+base64=$(echo -n $hash | base64)
+
+echo $base64
+```
+
 ### Update civil registration number hash on test user
 
 ```http
@@ -193,7 +267,7 @@ Capture the *default function key* from the `ValidateUser` function.
     - Name: `jwt.ms`
     - Supported account types: `Accounts in any identity provider or organizational directory (for authenticating users with user flows)`
     - Redirect URI (recommended): `Single-page application (SPA)` `https://jwt.ms`
-    - Permissions: `[X]` Grant admin consent to openid and offline_access permissions
+    - Permissions: [`X`] Grant admin consent to openid and offline_access permissions
     - Authentication/Implicit grant and hybrid flows: `[X]` Access tokens (used for implicit flows)
 
 ### Configure Application Insights for Azure AD B2C
@@ -208,8 +282,7 @@ Using your newly created Application Insights resource follow this guide:
 
 Using the data from your Criipto App Registration:
 
-- Update `policies/TrustFrameworkExtensions.xml` with client id
-- Create policy key `MitIDClientSecret` with client secret
+- Update `policies/CriiptoExtensions.xml` with client id
 - Create policy key `FunctionsKey` with function key
 
 ### Upload policies

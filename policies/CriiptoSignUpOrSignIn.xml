@@ -5,14 +5,14 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
   TenantId="ondfiskb2c.onmicrosoft.com"
-  PolicyId="B2C_1A_signup_signin"
+  PolicyId="B2C_1A_CriiptoSignUpOrSignIn"
   PublicPolicyUri="http://ondfiskb2c.onmicrosoft.com/B2C_1A_signup_signin"
   DeploymentMode="Development"
   UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
 
   <BasePolicy>
     <TenantId>ondfiskb2c.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
+    <PolicyId>B2C_1A_CriiptoExtensions</PolicyId>
   </BasePolicy>
 
   <RelyingParty>

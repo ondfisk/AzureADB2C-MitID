@@ -5,11 +5,11 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
   TenantId="ondfiskb2c.onmicrosoft.com"
-  PolicyId="B2C_1A_TrustFrameworkExtensions"
-  PublicPolicyUri="http://ondfiskb2c.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions">
+  PolicyId="B2C_1A_CriiptoExtensions"
+  PublicPolicyUri="http://ondfiskb2c.onmicrosoft.com/B2C_1A_CriiptoExtensions">
   <BasePolicy>
     <TenantId>ondfiskb2c.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_TrustFrameworkBase</PolicyId>
+    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
     <ClaimsSchema>
@@ -34,8 +34,7 @@
             <Item Key="client_id">urn:my:application:identifier:412703</Item>
             <Item Key="METADATA">https://ondfisk-test.criipto.id/.well-known/openid-configuration</Item>
             <Item Key="scope">openid ssn</Item>
-            <!-- <Item
-            Key="acr_values">urn:grn:authn:dk:mitid:substantial,urn:grn:authn:dk:mitid:high</Item> -->
+            <!-- <Item Key="acr_values">urn:grn:authn:dk:mitid:substantial,urn:grn:authn:dk:mitid:high</Item> -->
             <Item Key="response_types">code</Item>
             <Item Key="response_mode">form_post</Item>
             <Item Key="HttpBinding">POST</Item>
@@ -43,7 +42,7 @@
             <Item Key="SingleLogoutEnabled">true</Item>
           </Metadata>
           <CryptographicKeys>
-            <Key Id="client_secret" StorageReferenceId="B2C_1A_MitIDClientSecret" />
+            <Key Id="client_secret" StorageReferenceId="B2C_1A_CriiptoClientSecret" />
           </CryptographicKeys>
           <InputClaims />
           <OutputClaims>
