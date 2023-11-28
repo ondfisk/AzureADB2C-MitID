@@ -1,25 +1,19 @@
-﻿using System.Text;
-using System.Text.Json;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Graph.Models;
-
-namespace Ondfisk.B2C.Tests;
+﻿namespace Ondfisk.B2C.Tests;
 
 public class ValidateUserTests
 {
     private readonly ValidateUserDtoValidator _validator;
-    private readonly Mock<IGraphHelper> _helperMock;
+    private readonly IGraphHelper _helper;
     private readonly ValidateUser _function;
 
     public ValidateUserTests()
     {
         _validator = new ValidateUserDtoValidator();
-        _helperMock = new Mock<IGraphHelper>();
+        _helper = Substitute.For<IGraphHelper>();
         static DateTime utcNow() => DateTime.Parse("2020-02-02 20:20:20");
         var loggerFactory = new LoggerFactory();
 
-        _function = new ValidateUser(_validator, _helperMock.Object, utcNow, loggerFactory);
+        _function = new ValidateUser(_validator, _helper, utcNow, loggerFactory);
     }
 
     private static HttpRequest CreateHttpRequest(string method, object? body)
@@ -83,8 +77,7 @@ public class ValidateUserTests
         var dto = new ValidateUserDto("ce64b510-1877-49d5-9ce4-2b2e0dd0b9af", "Test User", "1234567890");
         var req = CreateHttpRequest("POST", dto);
 
-        _helperMock.Setup(x => x.GetUsersAsync("extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumber", "x3Xnt1ft5jDNCqERO9ECZhqziCnKUqZCKreChi8mhkY=")).ReturnsAsync(new[]
-        {
+        _helper.GetUsersAsync("extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumber", "x3Xnt1ft5jDNCqERO9ECZhqziCnKUqZCKreChi8mhkY=").Returns([
             new User
             {
                 Id = "817e5374-583c-40c0-a84b-e67ab51f05dc",
@@ -95,13 +88,13 @@ public class ValidateUserTests
                     ["extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumber"] = "x3Xnt1ft5jDNCqERO9ECZhqziCnKUqZCKreChi8mhkY="
                 }
             }
-        });
+        ]);
 
         // Act
         var result = await _function.Run(req) as OkObjectResult;
 
         // Assert
-        _helperMock.Verify(x => x.PatchUserAsync(It.Is<User>(u => (DateTime)u.AdditionalData["extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumberValidated"] == DateTime.Parse("2020-02-02 20:20:20"))), Times.Once);
+        await _helper.Received().PatchUserAsync(Arg.Is<User>(u => (DateTime)u.AdditionalData["extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumberValidated"] == DateTime.Parse("2020-02-02 20:20:20")));
 
         Assert.NotNull(result);
         var user = result.Value as ValidatedUserDto;
@@ -110,7 +103,6 @@ public class ValidateUserTests
         user.DisplayName.Should().Be("Test User");
         user.AccountEnabled.Should().BeTrue();
         user.CivilRegistrationNumberValidated.Should().Be(DateTime.Parse("2020-02-02 20:20:20"));
-
     }
 
     [Fact]
@@ -134,8 +126,7 @@ public class ValidateUserTests
         var dto = new ValidateUserDto("ce64b510-1877-49d5-9ce4-2b2e0dd0b9af", "Test User", "1234567890");
         var req = CreateHttpRequest("POST", dto);
 
-        _helperMock.Setup(x => x.GetUsersAsync("extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumber", "x3Xnt1ft5jDNCqERO9ECZhqziCnKUqZCKreChi8mhkY=")).ReturnsAsync(new[]
-        {
+        _helper.GetUsersAsync("extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumber", "x3Xnt1ft5jDNCqERO9ECZhqziCnKUqZCKreChi8mhkY=").Returns([
             new User
             {
                 Id = "817e5374-583c-40c0-a84b-e67ab51f05dc",
@@ -156,7 +147,7 @@ public class ValidateUserTests
                     ["extension_1be97e586e4944eea17a42fd1fc944cf_civilRegistrationNumber"] = "x3Xnt1ft5jDNCqERO9ECZhqziCnKUqZCKreChi8mhkY="
                 }
             }
-        });
+        ]);
 
         // Act
         var result = await _function.Run(req);
