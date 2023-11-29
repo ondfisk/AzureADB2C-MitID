@@ -138,3 +138,5 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
     clientCertMode: 'Optional'
   }
 }
+
+output functionAppManagedIdentity string = functionApp.identity.principalId
